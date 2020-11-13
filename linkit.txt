@@ -1,0 +1,3 @@
+multibinomial logistic regression for the multi classification task
+https://dataaspirant.com/implement-multinomial-logistic-regression-python/
+
