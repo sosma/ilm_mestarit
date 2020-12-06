@@ -28,7 +28,9 @@ data_joint = pd.concat([df['class4'],data],axis=1)
 
 best_multi = [0, 0]
 best_bin = [0, 0]
-for i in range(1, 11):
+acc_multis = [0] * 50
+acc_bins = [0] * 50
+for i in range(1, 51):
     n_components = i
 
     pca = PCA(n_components=n_components).fit(pd.concat([test_data, data]))
@@ -119,3 +121,17 @@ with open("result.csv", "w") as f:
     f.write(str(best_bin[0]/215) + "\n")
     f.write(csv)
 # print(result)
+
+# Plotting accuracies with different number of components used 
+
+plt.plot(acc_multis)
+plt.title('Multiclass')
+plt.xlabel('Number of components')
+plt.ylabel('Accuracy')
+plt.show()
+
+plt.plot(acc_bins)
+plt.title('Binary')
+plt.xlabel('Number of components')
+plt.ylabel('Accuracy')
+plt.show()
