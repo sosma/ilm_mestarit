@@ -7,9 +7,9 @@ create class2 with 0 = nonevent and 1 = event
 """
 def to01(row):
     if row['class4'] == "nonevent":
-        return 0
+        return "nonevent"
     else:
-        return 1
+        return "event"
 df = pd.read_csv("npf_train.csv")
 
 """
