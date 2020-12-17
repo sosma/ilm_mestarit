@@ -14,7 +14,7 @@ def powerset(iterable):
     return chain.from_iterable(combinations(s, r) for r in range(len(s)+1))
 def PCA_editor(pca, indexes):
     for index in indexes:
-        pca.components_[index] = np.zeros(100)
+        pca.components_[index] = np.zeros(50)
     return pca
 
 def to01(row):
@@ -24,14 +24,13 @@ def to01(row):
         return "event"
 
 df = pd.read_csv("npf_train.csv")
-test = pd.read_csv("npf_test_hidden.csv")
-find_numbers = [x for x in df.columns if x.endswith('.mean') or x.endswith('.std')]
+test = pd.read_csv("npf_test.csv")
+find_numbers = [x for x in df.columns if x.endswith('.mean')]
 
 data_nonscaled = df[find_numbers]
 test_nonscaled = test[find_numbers]
 data = data_nonscaled.rename(columns=lambda s: s[:-5])
 data=(data_nonscaled-data_nonscaled.mean())/data_nonscaled.std()
-
 test_data = test_nonscaled.rename(columns=lambda s: s[:-5])
 test_data=(test_nonscaled-test_nonscaled.mean())/test_nonscaled.std()
 
@@ -89,8 +88,8 @@ for i in list(powerset(range(n))):
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
-print("best multi: ", best_multi[0]/430, " left out components: ", best_multi[1])
-print("best binomial: ", best_bin[0]/430, " left out components: ", best_bin[1])
+print("best multi ESTIMATED: ", best_multi[0]/430, " left out components: ", best_multi[1])
+print("best binomial ESTIMATED: ", best_bin[0]/430, " left out components: ", best_bin[1])
 
 
 
@@ -116,6 +115,9 @@ pca_data = pd.DataFrame(x_test[:,0:n], columns=columns)
 
 multi_predictions = clf.predict(pca_data)
 multi_predictions_df = pd.DataFrame(multi_predictions, columns = ["class4"])
+y_test = test['class4']
+print("multiclass TRUE: ", (y_test == clf.predict(pca_data)).value_counts().loc[True]/len(y_test))
+
 
 
 """
@@ -141,6 +143,10 @@ pca_data = pd.DataFrame(x_test[:,0:n], columns=columns)
 
 binomial_predictions = clf.predict_proba(pca_data)
 binomial_predictions_df = pd.DataFrame(binomial_predictions[:,0], columns = ["p"])
+test['class2'] = test.apply(lambda row:  to01(row) , axis=1)
+y_test = test['class2']
+print("binary TRUE: ", (y_test == clf.predict(pca_data)).value_counts().loc[True]/len(y_test))
+
 
 result = multi_predictions_df.join(binomial_predictions_df)
 csv = result.to_csv(index=False)
