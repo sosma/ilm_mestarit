@@ -6,6 +6,7 @@ import numpy as np
 import seaborn as sns
 from itertools import chain, combinations
 from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import KFold, StratifiedKFold, train_test_split, cross_validate, cross_val_score
 import time
 
 def powerset(iterable):
@@ -41,10 +42,9 @@ best_bin = [0, 0]
 acc_multis = [0] * 50
 acc_bins = [0] * 50
 start_time = time.time()
-n = 10
+n = 3
 for i in list(powerset(range(n))):
     n_components = n
-    # TODO : test subsets of components
     pca_initial = PCA(n_components=n).fit(pd.concat([test_data, data]))
     pca = PCA_editor(pca_initial, i)
     x_new = pca.transform(data)
@@ -56,32 +56,34 @@ for i in list(powerset(range(n))):
 
 
     # TODO : cross validation here
-    test = joint_data.sample(frac = 0.5)
-    train = joint_data.drop(test.index).reset_index(drop=True)
-    # print(test)
-    # print(train)
-    X_train = train[[x for x in train.columns if x.startswith('pca')]]
-    y_train = train['class4']
-    X_test = test[[x for x in test.columns if x.startswith('pca')]]
-    y_test = test['class4']
-    clf = LogisticRegression(random_state=0).fit(X_train, y_train)
-    acc_multi = (y_test == clf.predict(X_test)).value_counts().loc[True]
+    X = joint_data[[x for x in joint_data.columns if x.startswith('pca')]]
+    y = joint_data['class4']
+    n_splits = 5
+    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=69420)
+    acc_multi = 0
+    for train_index, test_index in skf.split(X, y):
+        X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+        y_train, y_test = y[train_index], y[test_index]
+        clf = LogisticRegression(random_state=0).fit(X_train, y_train)
+        acc_multi += (y_test == clf.predict(X_test)).value_counts().loc[True]
     if acc_multi >= best_multi[0]:
         best_multi = [acc_multi, i]
 
-
-    X_train = train[[x for x in train.columns if x.startswith('pca')]]
-    y_train = train['class2']
-    X_test = test[[x for x in test.columns if x.startswith('pca')]]
-    y_test = test['class2']
-    clf = LogisticRegression(random_state=0).fit(X_train, y_train)
-    acc_bin = (y_test == clf.predict(X_test)).value_counts().loc[True]
+    y = joint_data['class2']
+    acc_bin = 0
+    for train_index, test_index in skf.split(X, y):
+        X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+        y_train, y_test = y[train_index], y[test_index]
+        clf = LogisticRegression(random_state=0).fit(X_train, y_train)
+        acc_bin += (y_test == clf.predict(X_test)).value_counts().loc[True]
     if acc_bin >= best_bin[0]:
         best_bin = [acc_bin, i]
+
+
 print("--- %s seconds ---" % (time.time() - start_time))
 
-print("best multi: ", best_multi[0]/215, " correct, n_components = ", best_multi[1])
-print("best binomial: ", best_bin[0]/215, " correct, n_components = ", best_bin[1])
+print("best multi: ", best_multi[0]/430, " left out components: ", best_multi[1])
+print("best binomial: ", best_bin[0]/430, " left out components: ", best_bin[1])
 
 
 
@@ -136,7 +138,7 @@ binomial_predictions_df = pd.DataFrame(binomial_predictions[:,0], columns = ["p"
 result = multi_predictions_df.join(binomial_predictions_df)
 csv = result.to_csv(index=False)
 with open("result.csv", "w") as f:
-    f.write(str(best_bin[0]/215) + "\n")
+    f.write(str(best_bin[0]/430) + "\n")
     f.write(csv)
 # print(result)
 
