@@ -42,8 +42,11 @@ best_bin = [0, 0]
 acc_multis = [0] * 50
 acc_bins = [0] * 50
 start_time = time.time()
-n = 3
+n = 10
+total_rounds = 2**n
 for i in list(powerset(range(n))):
+    rounds+=1
+    if(not rounds%10)
     n_components = n
     pca_initial = PCA(n_components=n).fit(pd.concat([test_data, data]))
     pca = PCA_editor(pca_initial, i)
@@ -91,8 +94,8 @@ print("best binomial: ", best_bin[0]/430, " left out components: ", best_bin[1])
 multiclass logistic regression
 """
 pca_multiclass = PCA(n_components=n).fit(data)
-pca_multiclass = PCA_editor(pca_multiclass, best_multi[1])
-x_new = pca.transform(data)
+pca = PCA_editor(pca_multiclass, best_multi[1])
+x_new = pca_multiclass.transform(data)
 columns = ["pca"+str(x) for x in range(n)]
 pca_data = pd.DataFrame(x_new[:,0:n], columns=columns)
 joint_data = pd.concat([df['class4'],pca_data],axis=1)
@@ -115,7 +118,7 @@ multi_predictions_df = pd.DataFrame(multi_predictions, columns = ["class4"])
 binomial logistic regression
 """
 pca_binomial = PCA(n_components=n).fit(data)
-pca_binomial = PCA_editor(pca_binomial, best_bin[1])
+pca = PCA_editor(pca_binomial, best_bin[1])
 x_new = pca.transform(data)
 columns = ["pca"+str(x) for x in range(n)]
 pca_data = pd.DataFrame(x_new[:,0:n], columns=columns)
