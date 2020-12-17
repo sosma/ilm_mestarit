@@ -33,6 +33,7 @@ acc_bins = [0] * 50
 for i in range(1, 51):
     n_components = i
 
+    # TODO : test subsets of components
     pca = PCA(n_components=n_components).fit(pd.concat([test_data, data]))
     x_new = pca.transform(data)
     columns = ["pca"+str(x) for x in range(n_components)]
@@ -41,6 +42,8 @@ for i in range(1, 51):
     joint_data = joint_data.sample(frac=1).reset_index(drop=True)
     joint_data['class2'] = joint_data.apply(lambda row:  to01(row) , axis=1)
 
+
+    # TODO : cross validation here
     test = joint_data.sample(frac = 0.5)
     train = joint_data.drop(test.index).reset_index(drop=True)
     # print(test)
@@ -122,7 +125,7 @@ with open("result.csv", "w") as f:
     f.write(csv)
 # print(result)
 
-# Plotting accuracies with different number of components used 
+# Plotting accuracies with different number of components used
 
 plt.plot(acc_multis)
 plt.title('Multiclass')
