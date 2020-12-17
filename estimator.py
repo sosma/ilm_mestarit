@@ -47,8 +47,10 @@ rounds=0
 total_rounds = 2**n
 for i in list(powerset(range(n))):
     rounds+=1
-    if(not rounds%10):
-        print(rounds/total_rounds)
+    if(not rounds%50):
+        print(int(100*(rounds/total_rounds)), "%")
+        print("best binary: " best_bin[0])
+        print("best multi: " best_multi[0])
     n_components = n
     pca_initial = PCA(n_components=n).fit(pd.concat([test_data, data]))
     pca = PCA_editor(pca_initial, i)
