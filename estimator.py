@@ -43,10 +43,12 @@ acc_multis = [0] * 50
 acc_bins = [0] * 50
 start_time = time.time()
 n = 10
+rounds=0
 total_rounds = 2**n
 for i in list(powerset(range(n))):
     rounds+=1
-    if(not rounds%10)
+    if(not rounds%10):
+        print(rounds/total_rounds)
     n_components = n
     pca_initial = PCA(n_components=n).fit(pd.concat([test_data, data]))
     pca = PCA_editor(pca_initial, i)
@@ -61,12 +63,12 @@ for i in list(powerset(range(n))):
     # TODO : cross validation here
     X = joint_data[[x for x in joint_data.columns if x.startswith('pca')]]
     y = joint_data['class4']
-    n_splits = 5
+    n_splits = 10
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=69420)
     acc_multi = 0
     for train_index, test_index in skf.split(X, y):
         X_train, X_test = X.iloc[train_index], X.iloc[test_index]
-        y_train, y_test = y[train_index], y[test_index]
+        y_train, y_test = y.iloc[train_index], y.iloc[test_index]
         clf = LogisticRegression(random_state=0).fit(X_train, y_train)
         acc_multi += (y_test == clf.predict(X_test)).value_counts().loc[True]
     if acc_multi >= best_multi[0]:
@@ -76,7 +78,7 @@ for i in list(powerset(range(n))):
     acc_bin = 0
     for train_index, test_index in skf.split(X, y):
         X_train, X_test = X.iloc[train_index], X.iloc[test_index]
-        y_train, y_test = y[train_index], y[test_index]
+        y_train, y_test = y.iloc[train_index], y.iloc[test_index]
         clf = LogisticRegression(random_state=0).fit(X_train, y_train)
         acc_bin += (y_test == clf.predict(X_test)).value_counts().loc[True]
     if acc_bin >= best_bin[0]:
